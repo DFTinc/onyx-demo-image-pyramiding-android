@@ -33,14 +33,10 @@ repositories {
     maven {
         url 'http://nexus.diamondfortress.com/nexus/content/repositories/releases/'
     }
-
-    maven {
-        url 'http://nexus.diamondfortress.com/nexus/content/repositories/snapshots/'
-    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.0.0'
-    compile 'com.dft.android:onyx-camera:1.0.6-SNAPSHOT'
+    compile 'com.dft.android:onyx-camera:1.0.6'
 }
