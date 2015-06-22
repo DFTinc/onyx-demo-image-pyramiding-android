@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Onyx Image Pyramiding</string>
+    <string name="onyx_logo">Onyx Logo</string>
+
+    <string name="onyx_license">@string/license_key_value</string>
+    
+    <string name="clear_enrollment">Clear enrollment</string>
+    <string name="enroll_title">Enrollment</string>
+    <string name="enroll_question">Would you like to enroll this fingerprint?</string>
+</resources>
