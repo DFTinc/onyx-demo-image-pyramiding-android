@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +37,7 @@ import com.dft.onyxcamera.ui.OnyxFragment.WsqCallback;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -226,20 +228,32 @@ public class OnyxDemoImagePyramiding extends Activity {
              */
             if (processedBitmap != null) {
                 double[] imageScales = new double[] { 0.8, 1.0, 1.2 }; // 80%, 100%, and 120%
+                ArrayList<byte[]> scaledWSQs = new ArrayList<byte[]>();
+
                 Mat mat = new Mat();
                 Utils.bitmapToMat(processedBitmap, mat);
-                ArrayList<byte[]> scaledWSQs = new ArrayList<byte[]>();
+                Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2GRAY); // ensure image is grayscale
+
                 MatVector vector = core.pyramidImage(mat, imageScales);
                 for (int i = 0; i < imageScales.length; i++) {
                     scaledWSQs.add(core.matToWsq(vector.get(i)));
                 }
-                for (int i = 0; i < scaledWSQs.size(); i++) {
-                    // TODO send scaledWSQs[i] to server
 
+                for (int i = 0; i < scaledWSQs.size(); i++) {
+                    // TODO: send scaledWSQs.get(i) to server for matching...
                 }
             }
         }
     };
+
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
 
     private WsqCallback mWsqCallback = new WsqCallback() {
 
@@ -250,7 +264,7 @@ public class OnyxDemoImagePyramiding extends Activity {
          * @param metrics the metrics associated with this fingerprint image capture.
          */
         public void onWsqReady(byte[] wsqData, CaptureMetrics metrics) {
-            // TODO Do something with WSQ data
+            // TODO: Do something with WSQ data
             Log.d(TAG, "NFIQ: " + metrics.getNfiqMetrics().getNfiqScore() + ", MLP: " + metrics.getNfiqMetrics().getMlpScore());
         }
 
