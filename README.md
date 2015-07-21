@@ -1,5 +1,5 @@
 # onyx-demo-image-pyramiding-android
-Sample showing a more detailed look at how to use the Onyx Fragment dynamically with verification.
+Sample showing a more detailed look at how to use the Onyx Fragment with image pyramiding.
 
 Getting Started
 ---------------

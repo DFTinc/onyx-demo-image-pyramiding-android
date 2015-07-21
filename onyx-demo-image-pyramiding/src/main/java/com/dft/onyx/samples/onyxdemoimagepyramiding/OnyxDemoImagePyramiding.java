@@ -3,10 +3,12 @@ package com.dft.onyx.samples.onyxdemoimagepyramiding;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,9 +25,7 @@ import com.dft.onyx.FingerprintTemplate;
 import com.dft.onyx.MatVector;
 import com.dft.onyx.core;
 import com.dft.onyxcamera.licensing.License;
-import com.dft.onyxcamera.licensing.LicenseException;
 import com.dft.onyxcamera.ui.CaptureConfiguration;
-import com.dft.onyxcamera.ui.CaptureConfiguration.Flip;
 import com.dft.onyxcamera.ui.CaptureConfigurationBuilder;
 import com.dft.onyxcamera.ui.CaptureMetrics;
 import com.dft.onyxcamera.ui.OnyxFragment;
@@ -51,7 +51,7 @@ import java.util.ArrayList;
 public class OnyxDemoImagePyramiding extends Activity {
     private final static String TAG = OnyxDemoImagePyramiding.class.getSimpleName();
     private final static String ENROLL_FILENAME = "enrolled_template.bin";
-
+    private Activity mActivity;
     private ImageView mFingerprintView;
     private Animation mFadeIn;
     private Animation mFadeOut;
@@ -73,17 +73,21 @@ public class OnyxDemoImagePyramiding extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupViews();
+        mActivity = this;
     }
 
     private void setupViews() {
         setContentView(R.layout.base_layout);
-        mFragment = (OnyxFragment) getFragmentManager().findFragmentById(R.id.onyx_frag);
+        mFragment = new OnyxFragment();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.fragment_content, mFragment, TAG);
+        ft.commit();
         CaptureConfiguration captureConfig = new CaptureConfigurationBuilder()
                 .setProcessedBitmapCallback(mProcessedCallback)
                 .setWsqCallback(mWsqCallback)
                 .setFingerprintTemplateCallback(mTemplateCallback)
                 .setShouldInvert(true)
-                .setFlip(Flip.VERTICAL)
+                .setFlip(CaptureConfiguration.Flip.VERTICAL)
                 .setRotation(90)
                 .buildCaptureConfiguration();
         mFragment.setCaptureConfiguration(captureConfig);
@@ -240,6 +244,16 @@ public class OnyxDemoImagePyramiding extends Activity {
 
                 for (int i = 0; i < scaledWSQs.size(); i++) {
                     // TODO: send scaledWSQs.get(i) to server for matching...
+                    File inputFile = new File(Environment.getExternalStorageDirectory(),
+                            "matToWsQ" + System.currentTimeMillis() / 1000 + ".wsq");
+
+                    try {
+                        FileOutputStream fos = new FileOutputStream(inputFile.getPath());
+                        fos.write(scaledWSQs.get(i));
+                        fos.close();
+                    } catch (IOException e) {
+                        Log.e(TAG, e.getMessage());
+                    }
                 }
             }
         }
@@ -254,7 +268,17 @@ public class OnyxDemoImagePyramiding extends Activity {
          * @param metrics the metrics associated with this fingerprint image capture.
          */
         public void onWsqReady(byte[] wsqData, CaptureMetrics metrics) {
-            // TODO: Do something with WSQ data
+            // TODO Do something with WSQ data
+            File inputFile = new File(Environment.getExternalStorageDirectory(),
+                    "WsqCallback" + System.currentTimeMillis() / 1000 + ".wsq");
+
+            try {
+                FileOutputStream fos = new FileOutputStream(inputFile.getPath());
+                fos.write(wsqData);
+                fos.close();
+            } catch (IOException e) {
+                Log.e(TAG, e.getMessage());
+            }
             Log.d(TAG, "NFIQ: " + metrics.getNfiqMetrics().getNfiqScore() + ", MLP: " + metrics.getNfiqMetrics().getMlpScore());
         }
 
@@ -311,7 +335,7 @@ public class OnyxDemoImagePyramiding extends Activity {
         License lic = License.getInstance(this);
         try {
             lic.validate(getString(R.string.onyx_license));
-        } catch (LicenseException e) {
+        } catch (Exception e) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("License error")
                     .setMessage(e.getMessage())
