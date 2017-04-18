@@ -46,5 +46,5 @@ configurations.all {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.0.0'
-    compile 'com.dft.android:onyx-camera:1.0.10'
+    compile 'com.dft.android:onyx-camera:1.0.11'
 }
